@@ -8,13 +8,13 @@ import java.awt.event.*;
  * DiceRoller<br>
  * <br>
  * The DiceRoller class creates the GUI for the 5punk BeardyRoller app and handles the<br>
- * dice roll calls.  The app is designed for SLA Industries and Shadowrun v. 4 RPGs.<br>
+ * dice roll calls.  The app is designed for SLA Industries, Shadowrun v. 4, and Eclipse Phase RPGs.<br>
  * <br>
  * This is in fact a code.<br>
  * 
  * @author Joshua Krell a.k.a. "deject"
- * @version 0.91
- * @date 6/3/2009
+ * @version 0.92
+ * @date 1/14/2012
  *
  */
 
@@ -29,11 +29,16 @@ public class DiceRoller implements ActionListener, ItemListener {
 	
 	//graphical components
 	private JFrame main;
-	private JPanel headerPanel, slaPanel, slaModPanel, slaResultPanel, shadowPanel, shadowDPPanel, shadowResultPanel;
-	private JLabel slaLabel, shadowLabel, slaModLabel, shadowDPLabel, slaResultLabel, shadowResultLabel;
-	private JTextField slaModField, shadowDPField;
-	private JTextArea slaResultArea, shadowResultArea;
-	private JButton slaRollButton, shadowRollButton;
+	private JTabbedPane gameChoosingPane;
+	private JPanel slaPanel, slaModPanel, slaResultPanel, shadowPanel,
+                shadowDPPanel, shadowResultPanel, eclipsePanel, eclipseTNPanel,
+                eclipseResultPanel;
+	private JLabel slaModLabel, shadowDPLabel, slaResultLabel,
+                shadowResultLabel, eclipseLabel, eclipseTNLabel,
+                eclipseResultLabel;
+	private JTextField slaModField, shadowDPField, eclipseTNField;
+	private JTextArea slaResultArea, shadowResultArea, eclipseResultArea;
+	private JButton slaRollButton, shadowRollButton, eclipseRollButton;
 	private JCheckBox shadowEdgeCheck;
 	private JPopupMenu rightClickMenu;
 	private JMenuBar menuBar;
@@ -42,11 +47,11 @@ public class DiceRoller implements ActionListener, ItemListener {
 	private ImageIcon beardIcon;
 	
 	/** About message. */
-	private String aboutMessage = "5punk BeardyRoller v0.91\n"
+	private String aboutMessage = "5punk BeardyRoller v0.92\n"
 		+ "Programmed by: Joshua \"deject\" Krell\n"
-		+ "Date: 3 June 2009\n"
+		+ "Date: 14 January 2012\n"
 		+ "Visit: http://www.5punk.co.uk\n"
-		+ "Copyright (c) 2009 Joshua Krell, all rights reserved.";
+		+ "Copyright (c) 2012 Joshua Krell, all rights reserved.";
 
 	
 	/**
@@ -56,23 +61,17 @@ public class DiceRoller implements ActionListener, ItemListener {
 		
 		PopupListener pop = new PopupListener();
 		
-		headerPanel = new JPanel(new GridLayout(1, 3));
-		slaLabel = new JLabel("SLA Industries", JLabel.CENTER);
-		shadowLabel = new JLabel("Shadowrun 4th Ed.", JLabel.CENTER);
-		headerPanel.add(slaLabel);
-		headerPanel.add(shadowLabel);
-		
 		// construct SLA components
 		slaPanel = new JPanel(new GridLayout(4, 1));
 		slaModPanel = new JPanel(new GridLayout());
 		slaModLabel = new JLabel("Modifier:");
 		slaModField = new JTextField("0", 3);
 		slaModField.setActionCommand("rollSLA");
-		slaRollButton = new JButton("Roll the dice!");
+		slaRollButton = new JButton("Roll the Dice!");
 		slaRollButton.setActionCommand("rollSLA");
 		slaResultPanel = new JPanel(new FlowLayout());
 		slaResultLabel = new JLabel("Result: ");
-		slaResultArea = new JTextArea(2, 20);
+		slaResultArea = new JTextArea(2, 25);
 		slaResultArea.setLineWrap(true);
 		
 		
@@ -87,11 +86,24 @@ public class DiceRoller implements ActionListener, ItemListener {
 		shadowRollButton.setActionCommand("rollShadow");
 		shadowResultPanel = new JPanel(new FlowLayout());
 		shadowResultLabel = new JLabel("Result: ");
-		shadowResultArea = new JTextArea(2, 20);
+		shadowResultArea = new JTextArea(2, 25);
 		shadowResultArea.setLineWrap(true);
 		rightClickMenu = new JPopupMenu();
 		copyItem = new JMenuItem("Copy");
-		
+                
+                // construct Eclipse Phase components
+		eclipsePanel = new JPanel(new GridLayout(4, 1));
+		eclipseTNPanel = new JPanel(new GridLayout());
+		eclipseTNLabel = new JLabel("Target Number:");
+		eclipseTNField = new JTextField("0", 3);
+		eclipseTNField.setActionCommand("rollEclipse");
+		eclipseRollButton = new JButton("Roll the Dice!");
+		eclipseRollButton.setActionCommand("rollEclipse");
+		eclipseResultPanel = new JPanel(new FlowLayout());
+		eclipseResultLabel = new JLabel("Result: ");
+		eclipseResultArea = new JTextArea(2, 25);
+		eclipseResultArea.setLineWrap(true);
+                
 		// construct the menu bar
 		exit = new JMenuItem("Exit");
 		file = new JMenu("File");
@@ -109,6 +121,8 @@ public class DiceRoller implements ActionListener, ItemListener {
 		shadowRollButton.addActionListener(this);
 		shadowDPField.addActionListener(this);
 		shadowEdgeCheck.addItemListener(this);
+                eclipseRollButton.addActionListener(this);
+                eclipseTNField.addActionListener(this);
 		copyItem.addActionListener(this);
 		exit.addActionListener(this);
 		about.addActionListener(this);
@@ -126,7 +140,6 @@ public class DiceRoller implements ActionListener, ItemListener {
 		slaResultLabel.add(rightClickMenu);
 		slaResultPanel.add(slaResultLabel);
 		slaResultPanel.add(slaResultArea);
-		
 		slaPanel.add(slaModPanel);
 		slaPanel.add(new JLabel(""));
 		slaPanel.add(slaRollButton);
@@ -138,11 +151,21 @@ public class DiceRoller implements ActionListener, ItemListener {
 		shadowResultPanel.add(rightClickMenu);
 		shadowResultPanel.add(shadowResultLabel);
 		shadowResultPanel.add(shadowResultArea);
-		
 		shadowPanel.add(shadowDPPanel);
 		shadowPanel.add(shadowEdgeCheck);
 		shadowPanel.add(shadowRollButton);
 		shadowPanel.add(shadowResultPanel);
+                
+                // construct Eclipse Phase panel
+                eclipseTNPanel.add(eclipseTNLabel);
+		eclipseTNPanel.add(eclipseTNField);
+		eclipseResultLabel.add(rightClickMenu);
+		eclipseResultPanel.add(eclipseResultLabel);
+		eclipseResultPanel.add(eclipseResultArea);
+		eclipsePanel.add(eclipseTNPanel);
+		eclipsePanel.add(new JLabel(""));
+		eclipsePanel.add(eclipseRollButton);
+		eclipsePanel.add(eclipseResultPanel);
 		
 		
 		// add everything into main window
@@ -150,15 +173,17 @@ public class DiceRoller implements ActionListener, ItemListener {
 		main.setJMenuBar(menuBar);
 		getBeard();
 		main.setIconImage(beardIcon.getImage());
-		main.getContentPane().setLayout(new BorderLayout(10, 0));
-		main.add(headerPanel, BorderLayout.NORTH);
-		main.add(slaPanel, BorderLayout.WEST);
-		main.add(shadowPanel, BorderLayout.EAST);
+		gameChoosingPane = new JTabbedPane();
+		gameChoosingPane.addTab("SLA Industries", slaPanel);
+		gameChoosingPane.addTab("Shadowrun v.4", shadowPanel);
+                gameChoosingPane.addTab("Eclipse Phase", eclipsePanel);
+                gameChoosingPane.setPreferredSize(new Dimension(340, 230));
+                main.add(gameChoosingPane);
 		
 		main.setLocationByPlatform(true);
 		main.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		main.pack();
-		main.setResizable(false);
+		//main.setResizable(false);
 		main.setVisible(true);
 			
 	}
@@ -177,6 +202,10 @@ public class DiceRoller implements ActionListener, ItemListener {
 		} else if (e.getActionCommand().equals("rollShadow")){
 			
 			shadowResultArea.setText(shadowRoll(Integer.parseInt(shadowDPField.getText()), shadowEdge));
+			
+		} else if (e.getActionCommand().equals("rollEclipse")){
+			
+			eclipseResultArea.setText(eclipseRoll());
 			
 		} else if (e.getSource() == copyItem){
 			if (((JPopupMenu) copyItem.getParent()).getInvoker() == slaResultArea){
@@ -239,8 +268,10 @@ public class DiceRoller implements ActionListener, ItemListener {
 	 */
 	private String slaRoll(){
 		
-		// roll the dice
+		// roll the dice & shift from 0-9 to 1-10
 		int[] rolls = spunkDice.rollD10(2);
+                rolls[0]++;
+                rolls[1]++;
 				
 		// get modifier
 		int modifier = 0;
@@ -359,6 +390,56 @@ public class DiceRoller implements ActionListener, ItemListener {
 		return result;
 	}
 	
+        /**
+         * Rolls Eclipse Phase system 2d10 for target percentage. Determines test
+         * success or failure, as well as Excellent Success/Severe Failure.
+         * 
+         * @return String               Result of dice roll
+         */
+        private String eclipseRoll(){
+            
+            // initialize output string
+            String result = "";
+            
+            // get target number from text area
+            int targetNumber = 0;
+            
+            try{
+			targetNumber = Integer.parseInt(eclipseTNField.getText());
+		} catch (NumberFormatException nfe) {
+			JOptionPane.showMessageDialog(main, eclipseTNField.getText() + " is not a number!", "ERRORZ!", JOptionPane.ERROR_MESSAGE);
+		}
+            
+            // roll 2d10 and use Eclipse Phase system to determine result
+            int[] rolls = spunkDice.rollD10(2);
+            int rollResult = (rolls[0] * 10) + rolls[1];
+            
+            // push dice roll onto outupt string
+            result += rolls[0] + ", " + rolls[1] + ": " + rollResult;
+            
+            // detect critical
+            if (rolls[0] == rolls[1]){
+                result += " Critical!";
+            }
+            
+            // determine success/fail and MoS/F
+            if (rollResult > targetNumber){
+                if ((rollResult - targetNumber) > 30){
+                    result += " Severe";
+                }
+                result += " Failure!";
+            }
+            else {
+                if ((targetNumber - rollResult) > 30){
+                    result += " Excellent";
+                }
+                result += " Success!";
+            }
+            
+            // return output string
+            return result;
+        }
+        
 	/**
 	 * Displays an about box.
 	 */
@@ -381,7 +462,6 @@ public class DiceRoller implements ActionListener, ItemListener {
 	 * Calls DiceRoller() constructor 
 	 */
 	public static void main(String[] argv){
-		
-		new DiceRoller();
+            DiceRoller diceRoller = new DiceRoller();
 	}
 }

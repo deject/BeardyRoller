@@ -22,7 +22,7 @@ public class Dice {
 	
 	/**
 	 * Method for rolling d6 values.  Returns an int array containing values
-	 * for each die rolled.  Values are from 0 to 6.
+	 * for each die rolled.  Values are from 1 to 6.
 	 * 
 	 * @param numDice		Number of dice to be rolled.
 	 * @return roll			roll values
@@ -55,7 +55,7 @@ public class Dice {
 		
 		// For each die, roll it
 		for(int index = 0; index < numDice; index++){
-			roll[index] = Integer.valueOf(roller.nextInt(10) + 1);
+			roll[index] = Integer.valueOf(roller.nextInt(10));
 		}
 		
 		// Return the results
