@@ -373,14 +373,14 @@ public class DiceRoller implements ActionListener, ItemListener {
 	 */
 	public void getBeard(){
 		
-		beardIcon = new ImageIcon(getClass().getResource("/BeardyRoller/img/beard.gif"));
+		beardIcon = new ImageIcon(getClass().getResource("/img/beard.gif"));
 
 	}
 	
 	/**
 	 * Calls DiceRoller() constructor 
 	 */
-	public static void main(String[] args){
+	public static void main(String[] argv){
 		
 		new DiceRoller();
 	}
